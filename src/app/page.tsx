@@ -42,8 +42,8 @@ export default function TeamMembers(user: IUser) {
     // Display data on UserCards stacked 4 per row on desktop screens and 2 per row on mobile screens
   return (
     <>
-      {data.map((user: IUser) => (
-        <UserCard<IUser> user={user} key={user.id} className="w-1/4 sm:w-1/2" />
+      {data.map((user: any) => (
+        <UserCard {...user} key={user.id} className="w-1/4 sm:w-1/2" />
       ))}
       </>
   )
