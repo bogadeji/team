@@ -1,113 +1,151 @@
-import Image from 'next/image'
+import { useEffect, useState } from "react";
 
-export default function Home() {
+/* 
+Below is a Next.js page that displays team members of Uwana Energy and also uses a simple form to add new members.
+1. Display all team members with the UserCard component stacked 4 per row on desktop screens and 2 per row on mobile screens. 
+2. Complete the form for adding a new member to meet the following criteria
+ a. All form fields are required 
+ b. Only a female can be added as CEO
+ c. Team can only have 7 male members
+ d. Team can only have 20 members in total 
+ e. Each new member's ID is an increment of the previous member's ID
+ g. Add a function that resets all form fields when the "Reset" Button is clicked
+ h. Align the "Reset" and "Submit" buttons to be displayed side by side both occupying 50% of their parent container on desktop screens and stacked ontop each other on mobile screens
+*/
+
+interface IUser {
+    id: string;
+    name: string
+    gender: string;
+    role: string;
+}
+
+const genders = [
+    { id: 'MALE', label: 'Male' },
+    { id: 'FEMALE', label: 'Female' }
+]
+
+const roles = [
+    { id: 'CEO', label: 'Chief Executive Officer' },
+    { id: 'COO', label: 'Chief Operations Officer' },
+    { id: 'CTO', label: 'Chief Technical Officer' },
+    { id: 'DEV', label: 'Frontend Developer' }
+]
+
+const data = [
+    { id: '1', name: 'Charles', gender: 'Male', role: 'Chief Technical Officer' },
+    { id: '2', name: 'Tayo', gender: 'Male', role: 'Chief Operations Officer' },
+]
+
+export default function TeamMembers(user: IUser) {
+
+    // Display data on UserCards stacked 4 per row on desktop screens and 2 per row on mobile screens
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
-        <p className="fixed left-0 top-0 flex w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-          Get started by editing&nbsp;
-          <code className="font-mono font-bold">src/app/page.tsx</code>
-        </p>
-        <div className="fixed bottom-0 left-0 flex h-48 w-full items-end justify-center bg-gradient-to-t from-white via-white dark:from-black dark:via-black lg:static lg:h-auto lg:w-auto lg:bg-none">
-          <a
-            className="pointer-events-none flex place-items-center gap-2 p-8 lg:pointer-events-auto lg:p-0"
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className="dark:invert"
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px] z-[-1]">
-        <Image
-          className="relative dark:drop-shadow-[0_0_0.3rem_#ffffff70] dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-4 lg:text-left">
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Docs{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Find in-depth information about Next.js features and API.
-          </p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Learn{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Learn about Next.js in an interactive course with&nbsp;quizzes!
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Templates{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Explore the Next.js 13 playground.
-          </p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2 className={`mb-3 text-2xl font-semibold`}>
-            Deploy{' '}
-            <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              -&gt;
-            </span>
-          </h2>
-          <p className={`m-0 max-w-[30ch] text-sm opacity-50`}>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <>
+      {data.map((user: IUser) => (
+        <UserCard<IUser> user={user} key={user.id} className="w-1/4 sm:w-1/2" />
+      ))}
+      </>
   )
+}
+
+function UserCard(user:IUser) {
+    
+    return (
+        <div>
+            <p>User #{user.id}</p>
+            <p>Name: {user.name}</p>
+            <p>Gender: {user.gender}</p>
+        </div>
+    );
+}
+
+function NewUserForm() {
+    
+    const defaultValue = {
+        id: '',
+        name: '',
+        gender: '',
+        role: '',
+    }
+
+    const [formData, setFormData] = useState<IUser>(defaultValue);
+    const [formError, setFormError] = useState<string>('');
+
+    useEffect(() => {
+        setFormData(defaultValue)
+    }, [])
+
+    const onChangeData = (e: any) => {
+        setFormData({
+            ...formData, [e.target.name]: e.target.value
+        })
+    }
+
+    const onDataReset = async () => {
+        setFormData(defaultValue);
+    };
+
+    const onSubmitData = async () => {
+        // validate submited data and add to data array
+        
+        const maleTeamMembers = data.filter(teamMember => {
+          return teamMember.gender === "Male";
+        });
+        const noOfTeamMembers = data.length;
+        const lastId = data[noOfTeamMembers - 1].id
+
+        if (formData.role == "Chief Executive Officer" && formData.gender !== "Female")
+        {
+            setFormError("CEO can only be female");
+        }
+        if (maleTeamMembers.length == 7)
+        {
+          setFormError("Only 7 male members are allowed on the team. This team member has to be female")
+        }
+        if (noOfTeamMembers == 20)
+        {
+          setFormError("Maximum number of team members reached.")
+        }
+
+        if (!formError)
+        {
+          setFormData({
+            ...formData, ["id"]: lastId + 1
+          });
+          data.push(formData);
+          setFormData(defaultValue)
+        }
+    
+    }
+
+    return (
+        <>
+            <div>
+                <div>{formError}</div>
+                <div>
+                    <input required className="input" type="text" placeholder="Name" name="name" value={formData.name} onChange={onChangeData} />
+                </div>
+                <div>
+                    <select required placeholder="Gender" name="gender" value={formData.gender} onChange={onChangeData} >
+                        {genders.map(each => (
+                            <option value={each.id} key={each.id}>{each.label}</option>
+                        ))}
+                    </select>
+                </div>
+                <div>
+                    <select required placeholder="Select User Role" name="role" value={formData.role} onChange={onChangeData} >
+                      {roles.map(role => (
+                        <option value={role.label} key={role.id}>{role.label}</option>
+                      ))}
+                    </select>
+                </div>
+                <div className="">
+                    <button onClick={onDataReset} className="w-1/2 sm:w-full">Reset</button>
+                    <button onClick={onSubmitData} className="w-1/2 sm:w-full">Submit</button>
+                </div>
+            </div>
+
+        </>
+    );
 }
