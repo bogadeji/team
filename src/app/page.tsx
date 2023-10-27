@@ -1,4 +1,6 @@
+"use client"
 import { useEffect, useState } from "react";
+import "../app/globals.css"
 
 /* 
 Below is a Next.js page that displays team members of Uwana Energy and also uses a simple form to add new members.
@@ -32,19 +34,29 @@ const roles = [
     { id: 'DEV', label: 'Frontend Developer' }
 ]
 
-const data = [
+const data: object[] = [
     { id: '1', name: 'Charles', gender: 'Male', role: 'Chief Technical Officer' },
     { id: '2', name: 'Tayo', gender: 'Male', role: 'Chief Operations Officer' },
 ]
 
 export default function TeamMembers(user: IUser) {
 
+    const [teamData, setTeamData] = useState<object[]>(data);
+
+    const changeTeamData  = (newData: object[]) => {
+        setTeamData([
+            ...teamData, newData
+        ])
+    }
     // Display data on UserCards stacked 4 per row on desktop screens and 2 per row on mobile screens
   return (
     <>
-      {data.map((user: any) => (
-        <UserCard {...user} key={user.id} className="w-1/4 sm:w-1/2" />
-      ))}
+        <div className="users grid lg:grid-cols-4 sm:grid-cols-2 gap-4">
+            {teamData.map((user: any) => (
+                <UserCard {...user} key={user.id} className="" />
+            ))}
+        </div>
+        <NewUserForm teamData={teamData} changeTeamData={changeTeamData} />
       </>
   )
 }
@@ -60,7 +72,7 @@ function UserCard(user:IUser) {
     );
 }
 
-function NewUserForm() {
+function NewUserForm({...props}) {
     
     const defaultValue = {
         id: '',
@@ -71,6 +83,7 @@ function NewUserForm() {
 
     const [formData, setFormData] = useState<IUser>(defaultValue);
     const [formError, setFormError] = useState<string>('');
+    const teamData = props.teamData;
 
     useEffect(() => {
         setFormData(defaultValue)
@@ -84,44 +97,75 @@ function NewUserForm() {
 
     const onDataReset = async () => {
         setFormData(defaultValue);
+        setFormError("");
     };
 
     const onSubmitData = async () => {
         // validate submited data and add to data array
-        
-        const maleTeamMembers = data.filter(teamMember => {
-          return teamMember.gender === "Male";
+        setFormError("")
+        const maleTeamMembers = teamData.filter(({...teamData}) => {
+          return teamData.gender === "Male";
         });
-        const noOfTeamMembers = data.length;
-        const lastId = data[noOfTeamMembers - 1].id
+        const dataCEO = teamData.filter(({...teamData}) => {
+            return teamData.role === "Chief Executive Officer"
+        })
+        
+        const noOfTeamMembers = teamData.length;
+        const lastId = teamData[noOfTeamMembers - 1].id
+        
+        if (formData.name !== '' && formData.gender !== '' && formData.role !== '')
+        {
+            if (formData.role === "Chief Executive Officer")
+            {
+                if (formData.gender !== "Female")
+                {
+                setFormError("CEO can only be female");
+                } else if ( dataCEO.length == 1 )
+                {
+                    setFormError("The role of Chief Executive Officer has been filled")
+                }
+            }
+            else if (maleTeamMembers.length == 7)
+            {
+                setFormError("Only 7 male members are allowed on the team. This team member has to be female")
+            }
+            else if (noOfTeamMembers == 20)
+            {
+                setFormError("Maximum number of team members reached.")
+            }
+            
+            else {
+                const id = parseInt(lastId) + 1;
+                formData.id = id.toString();
+                setFormData({
+                    ...formData
+                });
+                props.changeTeamData(formData);
+                console.log(teamData)
+                setFormData(defaultValue)
+                setFormError("");
+            }
+        } else {
+            if (formData.name == '')
+            {
+                setFormError("Name is required");
+            }
+            else if (formData.gender == "")
+            {
+                setFormError("Gender is required");
+            }
+            else if (formData.role == "")
+            {
+                setFormError("User role is required")
+            }
+        }
 
-        if (formData.role == "Chief Executive Officer" && formData.gender !== "Female")
-        {
-            setFormError("CEO can only be female");
-        }
-        if (maleTeamMembers.length == 7)
-        {
-          setFormError("Only 7 male members are allowed on the team. This team member has to be female")
-        }
-        if (noOfTeamMembers == 20)
-        {
-          setFormError("Maximum number of team members reached.")
-        }
-
-        if (!formError)
-        {
-          setFormData({
-            ...formData, ["id"]: lastId + 1
-          });
-          data.push(formData);
-          setFormData(defaultValue)
-        }
-    
+        
     }
 
     return (
         <>
-            <div>
+            <div className="py-9">
                 <div>{formError}</div>
                 <div>
                     <input required className="input" type="text" placeholder="Name" name="name" value={formData.name} onChange={onChangeData} />
@@ -129,20 +173,24 @@ function NewUserForm() {
                 <div>
                     <select required placeholder="Gender" name="gender" value={formData.gender} onChange={onChangeData} >
                         {genders.map(each => (
-                            <option value={each.id} key={each.id}>{each.label}</option>
+                            <option value={each.label} key={each.id}>{each.id}</option>
                         ))}
                     </select>
                 </div>
                 <div>
-                    <select required placeholder="Select User Role" name="role" value={formData.role} onChange={onChangeData} >
+                    <select required name="role" value={formData.role} onChange={onChangeData} >
                       {roles.map(role => (
                         <option value={role.label} key={role.id}>{role.label}</option>
                       ))}
                     </select>
                 </div>
-                <div className="">
-                    <button onClick={onDataReset} className="w-1/2 sm:w-full">Reset</button>
-                    <button onClick={onSubmitData} className="w-1/2 sm:w-full">Submit</button>
+                <div className="justify-center grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="w-full text-center">
+                        <button onClick={() => onDataReset()} className="w-fit">Reset</button>
+                    </div>
+                    <div className="w-full text-center">
+                        <button onClick={() => onSubmitData()} className="w-fit">Submit</button>
+                    </div>
                 </div>
             </div>
 
